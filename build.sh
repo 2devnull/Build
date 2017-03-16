@@ -266,6 +266,6 @@ esac
 #When the tar is created we can build the docker layer
 if  [ "$CREATE_DOCKER_LAYER" = 1 ]; then
   echo 'Creating docker layer'
-  DOCKER_UID="$(sudo docker import VolumioRootFS$VERSION.tar.gz $DOCKER_REPOSITORY_NAME)"
+  DOCKER_UID="$(docker import VolumioRootFS$VERSION.tar.gz $DOCKER_REPOSITORY_NAME)"
   echo $DOCKER_UID
 fi
