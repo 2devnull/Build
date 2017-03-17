@@ -17,7 +17,7 @@ IMG_FILE="Volumio${VERSION}-${BUILDDATE}-x86.img"
 echo "Creating Image Bed"
 echo "Image file: ${IMG_FILE}"
 dd if=/dev/zero of=${IMG_FILE} bs=1M count=3900
-LOOP_DEV=`sudo losetup -f --show ${IMG_FILE}`
+LOOP_DEV=`losetup -f --show ${IMG_FILE}`
 
 parted -s "${LOOP_DEV}" mklabel gpt
 parted -s "${LOOP_DEV}" mkpart primary 1 512		    #legacy and uefi boot
@@ -39,7 +39,7 @@ then
 fi
 
 echo "Creating filesystems"
-#sudo mkdosfs "${BOOT_PART}"
+#mkdosfs "${BOOT_PART}"
 mkfs -t vfat -F 32 -n volumioboot "${BOOT_PART}"
 mkfs.ext4 -E stride=2,stripe-width=1024 -b 4096 "${IMG_PART}" -L volumioimg
 mkfs.ext4 -E stride=2,stripe-width=1024 -b 4096 "${DATA_PART}" -L volumio_data
@@ -51,7 +51,7 @@ if [ -d /mnt ]
 then
     echo "/mnt folder exist"
 else
-    sudo mkdir /mnt
+    mkdir /mnt
 fi
 if [ -d /mnt/volumio ]
 then
@@ -59,15 +59,15 @@ then
     rm -rf /mnt/volumio/*
 else
     echo "Creating Volumio Temp Directory"
-    sudo mkdir /mnt/volumio
+    mkdir /mnt/volumio
 fi
 
 echo "Creating mount point for the images partition"
 mkdir /mnt/volumio/images
-sudo mount -t ext4 "${IMG_PART}" /mnt/volumio/images
-sudo mkdir /mnt/volumio/rootfs
+mount -t ext4 "${IMG_PART}" /mnt/volumio/images
+mkdir /mnt/volumio/rootfs
 echo "Copying Volumio RootFs"
-sudo cp -pdR build/x86/root/* /mnt/volumio/rootfs
+cp -pdR build/x86/root/* /mnt/volumio/rootfs
 
 echo "Copying the Syslinux boot sector"
 #syslinux "${BOOT_PART}"
@@ -76,8 +76,8 @@ dd conv=notrunc bs=440 count=1 if=/mnt/volumio/rootfs/usr/lib/syslinux/mbr/gptmb
 sync
 
 echo "Entering Chroot Environment"
-sudo mkdir /mnt/volumio/boot
-sudo mount -t vfat "${BOOT_PART}" /mnt/volumio/rootfs/boot
+mkdir /mnt/volumio/boot
+mount -t vfat "${BOOT_PART}" /mnt/volumio/rootfs/boot
 
 cp scripts/x86config.sh /mnt/volumio/rootfs
 if [ ! -d platform-x86 ]; then
